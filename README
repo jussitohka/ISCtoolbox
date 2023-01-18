@@ -1,6 +1,6 @@
 This is a repository to completement the repository hosted on nitrc https://www.nitrc.org/projects/isc-toolbox/
 Please consider the site on NITRC as the primary repository for the toolbox. However, some of the documentation has been hard 
-to find from the NITC site so I upload it here
+to find from the NITRC site so I upload it here
 
 This Matlab toolbox performs inter-subject correlation (ISC) based analysis of fMRI data and includes a GUI for the visualization of the resulting thresholded statistical maps.
 
