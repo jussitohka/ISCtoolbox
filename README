@@ -1,0 +1,11 @@
+This is a repository to completement the repository hosted on nitrc https://www.nitrc.org/projects/isc-toolbox/
+Please consider the site on NITRC as the primary repository for the toolbox. However, some of the documentation has been hard 
+to find from the NITC site so I upload it here
+
+This Matlab toolbox performs inter-subject correlation (ISC) based analysis of fMRI data and includes a GUI for the visualization of the resulting thresholded statistical maps.
+
+The toolbox contains functions to carry out various ISC based analysis such as mean, frequency band, time window and phase synchronization ISC analysis. All analyses can be run from a GUI. Isc-toolbox includes also automated support for Slurm/SGE based grid environments.
+
+A set of visualization tools - particularly designed for ISC analyses - are integrated to the GUI. Visualization tools contain functionalities to which standard functional neuroimaging packages are difficult to adapt.
+
+Reference: J.-P. Kauppi, J. Pajula J and J. Tohka (2014). A Versatile Software Package for Inter-subject Correlation Based Analyses of fMRI. Frontiers in Neuroinformatics, 8:2.
