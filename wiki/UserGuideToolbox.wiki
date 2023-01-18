@@ -1,0 +1,324 @@
+#summary User guide for the ISCtoolbox
+#labels Featured
+#sidebar wiki:toc
+
+=ISC Toolbox User’s Guide= 
+
+==Current release: 2.1==
+----
+===Table of Contents===
+  # [#1._General_information General information]
+  # [#2._Overview_of_the_ISC_toolbox Overview of the ISC toolbox]
+  # [#3._Checklist_for_successful_analysis Checklist for successful analysis]
+  # [#4._Data_preprocessing Data preprocessing]
+  # [#5._Setting_up_ISC_analysis_parameters Setting up ISC analysis parameters]
+    * [#File_and_folder_setup File and folder setup]
+    * [#Environment_setup Environment setup]
+    * [#Parameter_setup Parameter setup]
+    * [#Template_setup Template setup]
+    * [#Functions_of_the_startup_GUI Functions of the startup GUI]
+  # [#6._Folder_and_file_structure Folder and file structure]
+    * [#Files Files]
+    * [#Folders Folders]
+  # [#7._Hardware_and_Environment Hardware and Environment]
+    * [#Windows_vs_Linux Windows vs Linux] _Under update_
+    * [#Local_vs_Cluster Local vs Cluster] _Under update_
+  # [#References References]
+    * [#ISC_toolbox_development ISC toolbox development]
+    * [#Use_cases Use cases]
+----
+
+==1. General information==
+
+This is a guide for practical use of the ISC toolbox. A detailed description of the implementation and mathematics behind the methods can be found in:
+
+  J.-P. Kauppi, J. Pajula J and J. Tohka (2014). A Versatile Software Package for Inter-subject Correlation Based Analyses of fMRI. Frontiers in Neuroinformatics, 8:2. Available [http://www.frontiersin.org/Journal/10.3389/fninf.2014.00002/abstract here].
+
+Please refer to the above publication if you use the ISC toolbox in your studies.
+
+The instructions how to use the visualization GUI are available in a separate document: VisualizationGuide.
+
+The known Matlab errors are listed here: KnownMatlabErrors.
+
+“ISC” stands for Inter-Subject Correlation analysis. In the ISC based approach, experimental stimuli need not to be modeled explicitly (unlike in the GLM approach), because hemodynamic activity is detected indirectly based on the similarity of the fMRI time-series between subjects. Because of this flexibility, ISC based methods are expected to be most useful for analyzing fMRI data sets collected in “naturalistic” paradigms involving very complex stimuli, in which it is impossible to define a parametric model for the stimulus. However, there are no restrictions to apply ISC toolbox for other types of fMRI data sets as well. Note, however, that the basic assumption in the ISC based approach is that subjects are exposed to a common stimuli (task, movie, sound etc) to detect similar (time-locked) brain activity across subjects. ISC toolbox is exclusively designed for the analysis of fMRI data.
+
+ISC toolbox consists of several script-files written in Matlab. Therefore, a prerequisite for using the toolbox is the access to the Matlab software. The memory and CPU requirements are dependent on the size and number of fMRI data sets as well as the extent of the desired analysis. The toolbox has been successfully tested in both Windows and Linux platforms using machines with quite variable amount of memory (between 4G and 32G of RAM).
+
+----
+==2. Overview of the ISC toolbox==
+
+The development of the ISC toolbox started from a practical need to develop new reliable ISC based methods and to automate time- and memory-consuming ISC based computations. The original ISC toolbox was published along with the study of [http://www.frontiersin.org/neuroinformatics/10.3389/fninf.2010.00005/abstract Kauppi et al. (2010a)], where a new ISC based analysis method, which decomposes a conventional ISC analysis in different time-scales, was implemented and used to analyze complex fMRI data acquired during naturalistic viewing conditions. Besides this method (called “frequency-specific ISC”), the original ISC toolbox consists of a “basic analysis” option to obtain group-level ISC maps constructed based on the average of all subject-pairwise ISCs computed between the fMRI time-series of the subjects (computations are performed separately for each voxel across the whole brain). Moreover, the toolbox is equipped with the option to perform “time window ISC”, which splits original fMRI time-series into time-windows and computes group-level ISC maps separately for each window. Suitable randomization tests and multiple comparison correction methods were designed and implemented in the toolbox to threshold ISC maps. Matlab’s memory mapping feature was used to allow fluent computation, since this feature allows a rapid access of large data sets stored in a disk. Separate graphical user interfaces (GUIs) were developed to easily set-up the desired analysis parameters (the startup GUI) and to quickly browse the ISC analysis results (the visualization GUI).
+
+Statistical maps produced by the ISC toolbox were validated in the study of [http://dx.doi.org/10.1371/journal.pone.0041196 Pajula et al. (2012)], where the results of the ISC analysis were compared to the results of GLM analysis using data sets from traditional block design experiments consisting of five different functional tasks. The results showed that the ISC maps captured similar information as the maps produced based on the GLM, but without the requirement of using a parametric model. In another study, [http://www.ncbi.nlm.nih.gov/pubmed/24970023 Pajula and Tohka (2014)] examined the effect of spatial filtering to the results of the ISC analysis. A main conclusion of the study was that relatively sharp Gaussian filtering based on 2 voxel FWHM (full width at half maximum) provides a good compromise between denoising and the detection accuracy of the ISC.
+
+The second version of the ISC toolbox was published in January 2014 and was accompanied with a paper ([http://www.frontiersin.org/Journal/10.3389/fninf.2014.00002/abstract Kauppi et al. 2014]) describing the details of the analysis methods and the implementation of the toolbox. The most notable extensions of the version 2.0 included 1) possibility to compare ISC maps across sessions, 2) possibility to compute time-varying inter-subject phase synchronization maps, 3) possibility to use automated option to distribute ISC based computations across a computational grid, and 4) the extension and improvement of the usability of the visualization GUI. 
+
+In July 2014, the current version of the ISC toolbox was published (version 2.1), including several bug fixes and a more comprehensive grid support. In summary, the current ISC toolbox consists of the following analysis options:
+
+  * Basic ISC analysis (ISC maps constructed from averaged subject pairwise ISCs)
+  * Time window ISC analysis (window length and overlap parameters given by user)
+  * Frequency-specific ISC analysis (based on wavelet transformation)
+  * Inter-subject phase synchronization analysis (based on Hilbert transformation)
+  * Session comparison analysis
+  * Statistical thresholding based on randomization tests and FDR/Bonferroni (ISC analysis) or FWER (Session comparison analysis) based multiple comparison corrections.
+
+In addition, ISC toolbox has an automated builtin support for SGE/Slurm grid environments to speed up the computation of the analysis, and it contains the dedicated visualization software to browse the analysis results.
+
+----
+==3. Checklist for successful analysis==
+
+Before running the ISC toolbox, please read carefully the following checklist. The list is designed to minimize the number of problems which might be encountered during the analysis.
+
+  * *Make sure that several gigabytes of free hard disk space are available on the system where the analysis is run. Be also aware that running the analysis can be time-consuming especially with large data sets involving many subjects.*
+    * We highly recommend starting with the basic ISC analysis using only a subset of subjects and a low number of permutations to make sure that the analysis pipeline works before moving to computationally more demanding analyses. We also highly recommend the use of a computational grid when analyzing large data sets.
+  * *The format of the input fMRI data files must be nifti or mat*
+    * If the data files are saved in different format, they must be converted into one of these two formats before the analysis can take place. Data for each subject must be saved in a single file in the 4D (x,y,z,time) format. Data sets must be preprocessed, see Chapter 4 for more details.
+  * *The number of time-points must be the same for all subjects within each session*
+  * *When using session comparison, all subjects must be arranged in the same order in all sessions*
+    * This is because a paired test is used to construct the ISC difference maps.
+  * *All subjects within a session must be exposed to identical stimuli*
+  * *Use enough permutations to assess statistical significance of the ISCs and the ISC difference maps*
+    * So far, no systematic study has been carried out how many permutations are needed to obtain reliable estimates. Therefore, it is recommended to use very many permutations, e.g. at least 10,000 000 for ISC maps and 20,000 for ISC contrast maps. If computation time becomes prohibitive (e.g. if computations cannot be parallelized), it is suggested to run the analysis with different numbers of permutations (starting from rather low number to allow fluent computation), and investigate when the critical threshold values stabilize.
+  * *Make sure that there are enough time-points available for each time window when using time window ISC analysis*
+    * Despite of the randomization test performed to assess significance of the ISCs, many correlation values may be spurious when estimated only from few (e.g. less than ten) time points.
+  * *When using frequency-specific ISC and intersubject phase synchronization analysis, be aware that the temporal resolution of long time-scales (low-frequency band) is poor due to time-frequency uncertainty principle.*
+    * If the selected number of frequency subbands is F, and the bands from the highest to the lowest are indexed by b=1,2,...,F, the shortest time-scale captured by the subband is TR · 2^b^.
+  * *Be cautious when interpreting your results!*
+    * Although the ISC toolbox has been designed to automatize many ISC based computations, remember that in the end you are personally responsible for the validity of your results. For instance, when using the visualization GUI, make sure that the analysis parameters you have specified (e.g. time-window lengths and frequency band ranges) correspond to those shown by the GUI. If you notice any bugs not reported in the current bug list while using the ISC toolbox, please report about them. Be also aware that although the implemented non-parametric statistical procedures are designed to overcome restrictive assumptions of the standard procedures (such as the t-test), also the implemented methods contain assumptions which may not be fulfilled by real fMRI data. Therefore, although the violations seem not to be significant in practice (see e.g. [http://journal.frontiersin.org/Journal/10.3389/fninf.2014.00002/full#F2 Fig. 2. in Kauppi et al. (2014)]), the “optimality” of our tests cannot be guaranteed. Based on the experience from other methods and software designed for functional neuroimaging, the learning curve for developing the best statistical procedures can be rather long and it is likely that the current tests will be further improved in the future and implemented in the future versions of the ISC toolbox.
+
+----
+==4. Data preprocessing==
+
+Before using the ISC toolbox, fMRI data sets of the subjects must be registered to a common space (default is MNI-152 2mm, which is required by the Visualization GUI). According to the [http://www.ncbi.nlm.nih.gov/pubmed/24970023 Pajula and Tohka (2014)], also some level of spatial smoothing is required. Here is the checklist for the data preprocessing pipeline:
+
+  * *Removal of the skull from the data (can be done for example with FSL BET)*
+  * *Motion correction (for example with FSL McFlirt)*
+  * *Temporal highpass filtering*
+  * *Registration to a common space (MNI-152 2mm template preferred)*
+    * Suggested to use two-stage registration, first to structural MRI and then to the template (for example with FSL Flirt)
+  * *Visual quality inspection of the registration results*
+  * *Spatial smoothing to improve the SNR and voxel-wise localization between subjects*
+    * When Gaussian smoothing is used we suggest FWHM of 2-2.5 times of the original voxel size (with 2mm isotropic voxels you should use 4-5 mm FWHM Gaussian kernel). See [http://www.ncbi.nlm.nih.gov/pubmed/24970023 Pajula and Tohka (2014)] for details.
+
+----
+==5. Setting up ISC analysis parameters==
+
+The Startup GUI is started with command ISCanalysis in the Matlab command prompt. This opens GUI as visualized in the following picture. The GUI can be separated roughly to a 4 different parts:
+
+  * *File and folder setup* 
+  * *Environment setup*
+  * *Parameter setup* 
+  * *Template setup*
+
+  [http://isc-toolbox.googlecode.com/svn/wiki/Fig1.startupGUI_www.png]
+
+===File and folder setup===
+
+In the *Project name*-field, provide the descriptive name of your analysis project. *Destination directory* is the result path of your analysis. The path must be absolute and end with \ or / (depending on the OS of the environment).
+
+A session drop-down menu under the text *Add/change session* is used to add new sessions to a project as well as to the change the view of the current session. As a default, only one session is included in the project, whose subject source files must be provided in the large listbox below. All file names must be given with absolute paths, and a  single file name for each subject must be provided. The file format must be .nii or .mat (the mat-file should contain 4D matrix of fMRI data in order x,y,z,time). The validity of the given file names is automatically checked by a program and a message is printed in the Matlab’s command line showing whether valid file names were provided.
+
+A new session can be added by selecting “Session 2” from the session drop-down menu and then adding the files of this session for the list box. After this, it is possible to add third session by selecting “Session 3” from the menu and add the corresponding filenames, and so on. Hence, the menu always shows one additional session than is currently selected for the project. A session is deleted simply by clearing all the source files of the corresponding session. The program automatically keeps track how many sessions are added to the project, and the session drop-down menu is updated accordingly.
+
+As a general information, the analysis parameters will be saved in the mat-file having the given project name. For instance, if the name of your project is “ISCtest”, the file ISCtest.mat will be automatically generated, containing the struct-variable called “Params”, which is saved in the specified destination directory. The fields of the Params-struct contain all the details of the analysis. The main function which runs the ISC based computations (runAnalysis.m) and its subfunctions continuously read information from the fields of the Params-struct to perform the desired computations. The fields of the Params-struct are automatically written in the Startup GUI based on the parameters selected by a user. To modify the parameters of the existing project, open the Startup GUI and use the File-menu (upper left corner) to find the mat-file in the analysis destination directory corresponding to your project, e.g. File → Open → ISCtest.mat.
+
+===Environment setup===
+
+*Data removal after analysis* defines if the memory mapped binary files containing intermediate results of the ISC computations are kept or deleted after analysis. The files require a large amount of disk space and could be deleted after the analysis (the final results will not be removed). If the files are deleted, computations will take longer if the same project is modified later, because the source files must be remapped into HDD and the intermediate results must be computed again. If the binaries are not deleted, it is possible to extend the analysis afterwards faster as the toolbox is able to check if the analysis is run earlier and so it computes only the new analyses specified by a user. Binary maps can also be deleted afterwards by opening the setup file with Startup GUI, selecting the data removal, validating and running the analysis.
+
+*Grid computation* -options are available if the Matlab is run on Linux and the toolbox is able to detect either SGE or Slurm environment from the Linux system. The detected environment is printed on the command line of the Matlab when the Startup GUI is opened. If a user does not want to use grid but run analysis locally, a user can force the computation to the local system by selecting *Always force local computing*. 
+
+*Grid parameters* are specific to the detected grid environment. In the Slurm, the parameters are for sbatch command (see Slurm help in [https://computing.llnl.gov/linux/slurm/sbatch.html www] or ask from your IT-support). In the SGE, the parameters are for qsub (see SGE help in [http://gridscheduler.sourceforge.net/htmlman/htmlman1/qsub.html www] or ask from your IT-support). The default parameters for a single process are: partition/queue where the analysis is run (default is normal), memory the maximum amount of memory the process can use in megabytes (default is 8096 MB) and the maximum time the process can run (default is 2 days).
+
+Slurm:
+{{{
+--partition=normal --mem=8096 --time=2-0
+}}}
+SGE:
+{{{
+-l arch=lx24-amd64,h_rt=48:0:0,mf=8G
+}}}
+
+===Parameter setup=== 
+
+The parameter setup consists of multiple fields and options, defining which analyses will be run:
+
+  * *Basic ISC analysis:* computes group-ISC maps (separate map for each session)
+  * *Compute ISC difference maps across sessions:* computes contrast maps between all possible pairs of sessions. This option can be selected only if two or more sessions are added to the project.
+  * *Number of permutations (sum ZPF):* when computation of the ISC difference maps is selected, the number of permutations must be provided here for statistical thresholding of the maps.
+  * *TR (s):* provide TR of the fMRI data. This parameter allows automatic calculation of time-window lengths in seconds and frequency band ranges in Hertz. The default value is NaN so that a user is forced to provided a value in this field.
+  * *ISC map settings:* opens a separated GUI as visualized in the following picture to define what type of maps are saved for the future use:
+    * *Calculate average ISC maps* 
+      * Compute average of subject-pairwise ISC maps - this is the default
+    * *Calculate median, quartile std and t-score maps* 
+      * Compute other statistics of subject-pairwise ISC maps, including the median, quartiles and standard deviation
+      * Compute also Fisher’s z-transformed average ISC maps and use the standard t-test for thresholding.
+    * *Save ISC matrices:* save full inter-subject correlation matrices (consisting of each subject-pairwise correlation value) for each voxel. The matrices can be used for customized analyses outside the ISC toolbox. Note that these matrices require a large space in your hard drive.
+    * *Number of realizations:* set the number of realizations (shufflings of the time-series) performed in block-bootstrap test  used in the statistical thresholding of the (within-session) ISC maps.
+    * *Number of batches:* this option allows you to distribute the computation of the null distribution to multiple processors in the grid environment. For instance, as many as 100,000 000 realizations can be computed relatively quickly using 10 parallel batches of 10,000 000 realizations. If local computing is used, this parameter can also be used to reduce the amount of required memory (larger number of batches makes the amount of required memory smaller. Suggested number of batches is between 1-100). 
+    [http://isc-toolbox.googlecode.com/svn/wiki/Fig1b.corrSettings_www.png]
+  * *Frequency specific ISC:* this analysis splits the fMRI data into distinct frequency-subbands using the stationary wavelet transformation and computes ISCs separately within each frequency-subband. 
+    * *Number of bands:* the number of frequency bands must be provided when the frequency-specific ISC analysis is selected.
+    * *Compute ISC difference maps across frequency bands:* If frequency specific ISC is selected, it is also possible to compute the contrast ISC maps showing difference in ISC between frequency bands. 
+      * *Number of permutations (sum ZPF):* when computation of the ISC difference maps is selected, the number of permutations must be defined here for statistical thresholding of the maps.
+    * *Intersubject phase synchronization:* if the frequency-specific ISC analysis is selected, it is also possible to compute intersubject phase synchronization (ISPS) for each voxel within each frequency sub-band. The computation of the ISPS can be quite time consuming.
+  * *Time-window ISC:* this option computes whole-brain ISCs in distinct time-windows. The following parameters must be provided:
+    * *Window length (samples).* Length of the time-window, where the length is given in the number of time-points. Note that windows must be long enough to allow reliable estimation of the correlation coefficients within each window.
+    * *Step size (samples).* This parameter specifies the number of time-points between two consecutive time-windows. Consecutive time windows can be overlapping (if the step size is smaller than the time window length) or non-overlapping (if the step size is equal or greater than the time window length). Note that the computation time and memory requirements are higher when using smaller step sizes.
+
+===Template setup===
+
+In the template setup, user must provide information whether the data is registered to a standard MNI template provided by the FSL. It is highly recommended to use registration to a standard template, because this allows computing ROI-based ISCs over time and visualization of ROIs over ISC maps using the visualization GUI. Currently, the visualization GUI is compatible only with the MNI-152 2mm template. 
+
+When the *Use Template*-option has been selected, a user must provide the full path name to a nifti-file containing the templates in the field *Directory of standard templates*. The template folder path must be absolute and end with slash (\ or/). The template files inside the folder must be uncompressed nii-files (use “gzip -d” to uncompress nii.gz files).
+
+The templates are freely distributed with the FSL analysis tools (http://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSL). The templates are found in the FSL installation folders:
+{{{
+$FSLDIR/data/standard/
+$FSLDIR/data/atlases/HarvardOxford
+}}}
+
+The required files are (place them e.g. in templates/ folder of ISCtoolbox):
+
+{{{
+HarvardOxford-cort-maxprob-thr0-2mm.nii
+HarvardOxford-cort-maxprob-thr25-2mm.nii
+HarvardOxford-cort-maxprob-thr50-2mm.nii
+HarvardOxford-cort-prob-2mm.nii
+HarvardOxford-sub-maxprob-thr0-2mm.nii
+HarvardOxford-sub-maxprob-thr25-2mm.nii
+HarvardOxford-sub-maxprob-thr50-2mm.nii
+HarvardOxford-sub-prob-2mm.nii
+MNI152_T1_2mm_brain_mask.nii
+MNI152_T1_2mm_brain.nii
+}}}
+
+If registration to a standard MNI template has not been done, a user must uncheck *Use template*-option and give the name to a mat- or nifti-file containing a binary 3-dimensional brain mask to the field below (*Binary mask file name*). Make sure that the full path name to the file is given, e.g. C:\isc-toolbox\ISCanalysis\templates\customMask.m. The dimensions of the mask must correspond to the first three-dimensions (x,y,z) of the fMRI data files. ISCs will be then computed only within the specified brain locations marked in this mask (1=voxel inside the brain area of interest, 0=voxel outside the brain area of interest). It is important to define a proper binary mask to keep the computation time of the ISCs feasible. The mask can only contain values 0 and 1.
+
+===Functions of the startup GUI===
+
+  * *Validation of the parameters*
+    * When all the parameters are carefully selected, a user must validate the parameters by pushing the “Validate parameters” -button. After successful validation, the toolbox saves the parameters to the analysis destination folder and creates the required folder structure where the analysis results will be saved. 
+  * *Running the analysis*
+    * When the parameters are saved successfully, a user can push the “Run analysis”-button which executes all the selected analysis procedures based on the given parameters.
+  * *Launching the visualization GUI*
+    * When the analysis is finished (there will be a notification about the successful analysis in the Matlab command line) a user can launch the Visualization GUI from the “Launch visu-GUI”-button (if 2mm MNI-152 template was used). 
+  * *Other functions*
+    * The analysis parameters of the project can be exported to the Matlab workspace by the button “Export to workspace”.
+    * In case the parameter validation was not successful, the parameter-file will not be automatically saved to the analysis destination directory. In this case, the current parameters of the project can be saved to further use by selecting File->Save.
+    * Earlier parameter files (run or not) can be loaded by File -> Open.
+    * Startup GUI can be closed from File -> Exit.
+
+----
+==6. Folder and file structure==
+
+Here, the files and folders of the analysis destination directory are described. 
+
+===Files===
+
+The files located in (the root folder of) the analysis destination directory are as follows:
+
+  * *Parameter file*
+    * All the parameters of the project are saved in a mat-file which is named after the name of the ISC analysis project (e.g. ISCtest.mat). The struct-variable containing the parameters is called “Params”.
+  * *memMaps.mat*
+    * This file contains a struct-variable “memMaps” which includes all the memory map objects (pointers) which allow access to the binary files saved in different folders. Using these objects, it is possible to access even very large data sets quickly from the Matlab’s command line. Due to many different ISC based computations, many memory map objects corresponding to different data sets are saved in the memMaps-struct. The objects are arranged in the struct using the descriptive field names, and the data can be accessed through the Data-fields of these objects. To use memory map objects to access the binary data, go the analysis destination directory and type “load memMaps” from the Matlab’s command line and find the appropriate object in the struct. For more details of the memory map pointers and their usage, type “doc memmapfile” in the Matlab’s command line. Note that the analysis results are also saved as nifti-files in the results-folder and therefore direct access of binary files may not be necessary. 
+  * *Tag.mat*
+    * This file contains the project name as a character-array.
+  * *fileInfo.mat*
+    * This file contains information about the input data files.                    
+
+===Folders===
+
+The destination folder of the ISC toolbox contains the following subfolders:
+
+  * *results*    
+    * This folder contains the ISC analysis results in both binary and nifti-format.
+      * Average correlation results are in files (one for each Session and Band): ISCcorrmapBand0Session1.nii
+      * Extra statistical maps are found in files (one for each Session and Band): ISCstatmapBand0Session1.nii
+        * Order of the maps inside the nifti is: _mean Fisher, std Fisher, lower Quarter, median, upper Quarter._
+  * *scripts* 
+    * This folder contains the scripts and logs of the grid environment as well as the main log of the analysis.
+  * *stats*
+    * If extra statistical maps are selected the binary files of the maps are appearing here. Also all computed thresholds will appear here as mat-files.
+  * *fMRIpreprocessed* 
+    * This folder contains the binary files of the original fMRI data sets.
+  * *fMRIfiltered*
+    * This folder contains the binary files of the wavelet-filtered fMRI data sets.
+  * *PF*
+    * This folder contains the binary files of the ISC difference maps between frequency-bands.
+  * *PFsession*
+    * This folder contains the binary files of the ISC difference maps between sessions.
+  * *phase*
+    * If phase synchronization is selected the binary files of the results are appearing here
+  * *tmp*
+    * This folder is used for temporary files and should be empty after the analysis is successfully finished.
+
+The toolbox also creates the folder called “within”, but it remains empty in the current version.
+
+<wiki:comment>
+  * *Tree image about the folders (like in freesurfer or FSL)? (will be added later)
+  * *Example how to load ISC matrices (if computed) from the results. (will be added later)
+</wiki:comment>
+
+----
+==7. Hardware and Environment==
+_This part will be updated in the near future_
+
+===Windows vs Linux===
+  * Key difference within the ISC toolbox in Windows and Linux environment is that in Windows environment the only option is to use local computations. The cluster support requires Linux environment. 
+  * Memory and hard drive requirements depend on the used analysis and the number of subjects. For example, frequency band and time window analyses require more memory than basic ISC analysis as well as they need more HDD space. 
+    * For example, each frequency band requires roughly the same amount HDD space as the original subject data.
+
+
+===Local vs Cluster===
+  * Within local environment, all analysis phases are computed on the current machine one by one.
+  * With the cluster environment, each analysis step is first distributed to the grid engine with separated computing scripts and then the current Matlab just follows when the computations of that step are finished. After this it gathers the results of that step and then starts the next step as earlier.
+    * When using the parallel computing option, the used * computer/cluster node must be able to submit new processes to the grid engine.*
+      * This can be the front node of the cluster, an interactive node which has a permission to submit the processes or a common Linux computer which has access/permission to submit processes to the grid engine.
+      * This can be tested by submitting some "Hello World" with sbatch or qsub command from the computer where the used Matlab is run. If submissions are fine from Linux command line then also ISCtoolbox can run them.
+    * Each computing node, where the analysis steps are computed, writes its own log in the _*scripts*_ folder.
+      * The main.txt is a log from the Matlab which runs the ISCanalysis
+      * *.oxxxxx* and *.exxxxx* files are the output (o) and error (e) logs from each process executed by the main Matlab, where *xxxxx* is the process number from the grid engine. 
+      * If an error occur in some process it writes a log to the corresponding e-file from where it is possible to examine.
+  * Currently the Slurm and SGE grid engines are supported by the toolbox. 
+    * In the SGE environment there is a limitation that the same user can run only one ISC toolbox analysis at once. In Slurm environment, this limitation *does not* apply.
+
+----
+==References==
+
+===ISC toolbox development===
+
+_*ISC toolbox 2.0 and its features were introduced:*_
+
+ Kauppi, J-P., Pajula, J., Tohka, J., “A Versatile Software Package for Inter-subject Correlation Based Analyses of fMRI”, Frontiers in Neuroinformatics, 8:2, 2014. Available [http://www.frontiersin.org/Journal/10.3389/fninf.2014.00002/abstract here].
+
+_*The original ISC toolbox was published and the frequency-specific ISC was introduced:*_
+
+ Kauppi J-P, Jääskeläinen, I., Sams, M., and Tohka, J. “Inter-subject synchronization of brain hemodynamic responses during watching a movie: Localization in space and frequency”, Frontiers in Neuroinformatics 4:5, 2010a. Available [http://www.frontiersin.org/neuroinformatics/10.3389/fninf.2010.00005/abstract here].
+
+
+_*The comparative study between the ISC toolbox and the GLM results:*_
+
+ Pajula J, Kauppi J-P., Tohka J, ”Inter-subject correlation in fMRI: Method validation against stimulus-model based analysis” PLoS ONE, 7(8), 2012. Available [http://dx.doi.org/10.1371/journal.pone.0041196 here].
+
+
+_*The investigation of the effect of spatial smoothing for the ISC analysis results:*_
+
+ Pajula, J., Tohka, J. “Effects of spatial smoothing on inter-subject correlation based analysis of FMRI”. Magnetic Resonance Imaging, 2014. Available [http://www.ncbi.nlm.nih.gov/pubmed/24970023 here].
+
+
+===Use cases===
+
+_*Neuroscientific studies using the ISC toolbox (basic, time window ISC and ISC session comparison):*_
+
+ Nummenmaa,L.,Glerean,E.,Viinikainen,M.,Jääskeläinen,I.P.,Hari,R.,and Sams, M. “Emotions promote social interaction by synchronizing brain activity across individuals”. Proc.Natl.Acad.Sci.U.S.A. 109, 9599–9604, 2012. doi: 10.1073/pnas.1206095109
+
+ Salmi, J., Roine, U., Glerean, E., Lahnakoski, J., Nieminen-von Wendt, T., Tani, P., ... & Sams, M. “The brains of high functioning autistic individuals do not synchronize with those of others”. NeuroImage: Clinical, 3, 489-497, 2013.
+
+ Lahnakoski, J. M., Glerean, E., Jääskeläinen, I. P., Hyönä, J., Hari, R., Sams, M., & Nummenmaa, L. “Synchronous brain activity across individuals underlies shared psychological perspectives”. NeuroImage, 2014.
+
+_*Here, the ISC toolbox was used as a preprocessing tool in multivariate analyses (including feature selection in a supervised face prediction problem and ISC matrix computation in the investigation of intersubject variability):*_
+
+ Kauppi J.-P., Huttunen, H., Korkala,H., Jääskeläinen,I.P., Sams,M., and Tohka,J. “Face prediction from fMRI data during movie stimulus:strategies for feature selection,”in Artificial Neural Networks and Machine Learning–ICANN 2011, 189–196, 2011. doi:10.1007/978-3-642-21738-8_25
+
+ Kauppi, J-P., Jääskeläinen, I.P., Sams, M., Tohka, J. “Clustering inter-subject correlation matrices in functional magnetic resonance imaging”. The 10th IEEE International Conference on Information Technology and Applications in Biomedicine (ITAB), Corfu, Greece, November 3-5, pp. 1-6, 2010b.

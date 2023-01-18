@@ -1,0 +1,28 @@
+= The files in the PFsession subdirectory =
+ThPFBand0sessComp1win0.mat  : FWER corrected test statistic thresholds (voxel-wise correction)       
+band0Z_nonparametric1.mat   : Z-values with voxel-wise models. Obtained from voxel-wise permutation test yielding different model for each voxel        
+band0ZsumStat1.mat          : The standard test statistics values (same model for all voxels)      
+band0clusterExtentTh1.mat   : Primary (cluster defining) threshold for cluster extent correction for defining clusters. Applies to band0ZsumStat1        
+band0clustersPFsessComp1.mat : Cluster images (positive group1 > group2 and negative group2 > group1). Formed by thresholding band0ZsumStat1 with band0clusterExtentTh1. Values are cluster extents (or masses) for each voxel.       
+band0clustervalsPFsessComp1.mat : Distributions of the maximal cluster extent statistics.  Not interesting for a normal user.    
+band0jkStdMap1.mat          : Standard deviation map for group 1       
+band0jkStdMap2.mat          : Standard deviation map for group 2       
+band0pvalmaps3D1.mat        : Uncorrected p-values, referring to ZsumStat1.mat, all voxels with the same model      
+band0pvalmaps3Dindvox1.mat  : Uncorrected p-values with voxel-wise models, each voxel with its own model       
+band0standardizedPF1.mat    : Standardized test-statistic values; if studentization is on, same as  ZsumStat1.mat     
+band0valsPFsessComp1.mat    :  Distributions of the maximal statistics (voxel-wise).  Not interesting for a normal user.         
+clusterThPFBand0sessComp1win0.mat : Cluster extent thresholds, FWER corrected. Separate thresholds for positive and negative clusters.  These are used for tresholding band0clustersPFsessComp1.mat
+fdr_ThPFBand0sessComp1win0.mat : FDR corrected and uncorrected thresholds (p-value thresholds as well as corresponding test statistic thresholds. Obtained with 2-tailed models, so symmetry is assumed. Separate thresholds for voxel-wise models and global models.      
+pvalmaps3D1Band0.nii         : Uncorrected p-value map, referring to ZsumStat1.mat, all voxels with the same model       
+pvalmapsindvox3D1Band0.nii   : Uncorrected p-value map voxel-wise models, each voxel with its own model       
+standardErrorPF1Band0.nii    : Standard error map (weighted average of group-wise SE's)      
+standardizedPF1Band0.nii     : Standardized test-statistic values; if studentization is on, same as  ZsumStat1.mat        
+z_nonparametric1Band0.nii    : Z-values with voxel-wise models. Obtained from voxel-wise permutation test yielding different model for each voxel      
+
+Note that some of the mat files are NOT in 3D format but in vectorized format. 
+To turn, for example, band0pvalmaps3Dindvox1.mat in 3D format do the following (in Matlab):
+
+p3D = ones(PFsize(1:3));
+p3D(indbmaskorig) = pVsindvox; 
+
+ones instead of zeros is because p-values outside the brain are better visualized having value 1.

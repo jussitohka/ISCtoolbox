@@ -1,0 +1,64 @@
+#summary Instructions to fix the memmapping issue with certain versions of Matlab
+#labels Featured,Phase-Deploy
+
+= Introduction =
+
+When changing the Matlab version after performing analysis and reading results there exists issues with Matlab memmaping commands. Older Matlab versions cannot open results fron newer versions and vice versa or the result images are cropped. The main cause for them looks to be the changes in Matlab memmapping commands.
+
+After these fixes for Matlab the newest version of ISCtoolbox should work without problems.
+
+
+= Details =
+The problems are connected to Matlab bug nr. 745694
+
+http://www.mathworks.com/support/bugreports/search_results?search_executed=1&keyword=memmap&release_filter=Exists+in&release=0&selected_products=&commit=Search#
+
+= Fix =
+The following for clarity. Here are the modifications that are required to pass MAT files containing 'memmapfile' objects between 2009 and R2010b.
+
+The needed file can be found in Matalb with command:
+{{{ 
+edit([matlabroot,'/toolbox/matlab/iofun/@memmapfile/memmapfile.m']) 
+}}}
+
+For R2009b (or any version before R2010b), you need to change 'loadobj' method of 'memmapfile.m' to:
+{{{
+      function obj = loadobj(obj)
+          if isa(obj, 'memmapfile')
+              obj.DataHandle = 0;
+          elseif isfield(obj, 'Filename')
+             if(isfield(obj, 'Writable'))
+                obj.writable = obj.Writable;
+             end
+             if(isfield(obj, 'Offset'))
+                obj.offset = obj.Offset;
+             end
+             if(isfield(obj, 'Format'))
+                obj.format = obj.Format;
+             end
+             if(isfield(obj, 'Repeat'))
+                obj.repeat = obj.Repeat;
+             end
+              obj = memmapfile(obj.Filename, ...
+                               'Writable', obj.writable, ...
+                               'Offset', obj.offset, ...
+                               'Format', obj.format, ...
+                               'Repeat', obj.repeat);
+          end
+      end
+}}}
+
+For MATLAB R2010b, you need to change 'loadobj' method of 'memmapfile.m' to:
+{{{
+    function obj = loadobj(obj)
+        if isa(obj, 'memmapfile')
+            obj.DataHandle = 0;
+        elseif isfield(obj, 'filename')
+            obj = memmapfile(obj.filename, ...
+                             'Writable', obj.writable, ...
+                             'Offset', obj.offset, ...
+                             'Format', obj.format, ...
+                             'Repeat', obj.repeat);
+        end
+    end
+}}}

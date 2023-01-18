@@ -1,0 +1,29 @@
+#summary User guide for ISCtoolbox Visualization GUI (under update)
+
+=Quick Guide=
+
+ * short explanation how to start and what can be done
+
+= Introduction =
+
+ * Summary about the functions which will be explained later with detail
+
+
+= Main GUI =
+
+[http://isc-toolbox.googlecode.com/svn/wiki/Fig1.visuGUI_www.png]
+
+Image from the GUI at the beginning
+
+ * All boxes explained 
+
+== Plot Image window ==
+ * as earlier
+
+== Plot Axial window ==
+ * as earlier
+
+
+= Known Issues =
+
+ * Known errors and problems

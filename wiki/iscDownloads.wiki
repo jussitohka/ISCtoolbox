@@ -1,0 +1,37 @@
+#summary ISCToolbox downloads section
+#labels Featured
+
+Atom feed from this page is available [http://code.google.com/feeds/p/isc-toolbox/svnchanges/basic?path=/wiki/iscDownloads.wiki HERE].
+----
+
+= Current version =
+
+== ISCToolbox Release 2.1 ==
+
+Download the zip package here: [https://docs.google.com//uc?export=download&id=0B3bn0pNx8KmjQVZKR0dfMWwtLTg ISC Toolbox 2.1], unzip it to the directory of choice, and run setISCToolboxPath.m (this should be done on every time a new Matlab session is started unless you save the path). The package contains NiFTI tools by Jimmy Shen for convenience. The visualization tool require Harvard Oxford atlases as well as the MNI152 standard brains (2mm versions), which are available as a part of the [http://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSL FSL software package]. These are NOT provided with the toolbox since they are distributed under a different license, so you should copy these files into templates sub-directory. See the readme.txt in the zip-package for details.
+
+A new User's guide will be available in the Wiki very soon!
+
+----
+= Older versions =
+
+== All versions are available [https://drive.google.com/folderview?id=0B_XG8_ZNAKlheGNiaUlEX0N4d2c&usp=sharing here].==
+
+== ISCToolbox Release 2.0 ==
+
+Download the zip package here: [https://docs.google.com//uc?export=download&id=0B_XG8_ZNAKlhb09FYnBwZzB5U00 ISC Toolbox 2.0], unzip it to the directory of choice, and run setISCToolboxPath.m (this should be done on every time a new Matlab session is started unless you save the path). The package contains NiFTI tools by Jimmy Shen for convenience. The visualization tool require Harvard Oxford atlases as well as the MNI152 standard brains (2mm versions), which are available as a part of the [http://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSL FSL software package]. These are NOT provided with the toolbox since they are distributed under a different license, so you should copy these files into templates sub-directory. See the following readme.txt for details.
+
+More information is in [https://docs.google.com/file/d/0B_XG8_ZNAKlhcVJIclVkUzZxVVU/edit readme.txt] (also available in the zip-archive) so please skim it through. 
+
+== ISCToolbox release 1.1 ==
+
+Download the zip package provided, unzip it to the directory of choice, and run setISCToolboxPath.m (this should be done on every time a new Matlab session is started unless you save the path). You can still edit and use runInit.m, but this is not necessary. The package contains NiFTI tools by Jimmy Shen for convinience. The visualization tool require Harvard Oxford atlases as well as the MNI152 standard brains (2mm versions), which are available as a part of the FSL software package. These are NOT provided with the toolbox since they are distributed under a different license, so you should copy these files into templates sub-directory.
+
+== ISCToolbox release 1.0 ==
+
+Download the zip package provided, unzip it to the directory of choice, and edit the file runInit.m so that the directories are correct. The package contains NiFTI tools by Jimmy Shen for convinience. In addition, the visualization tools require Harvard Oxford atlases as well as the MNI152 standard brains (2mm versions). These are NOT provided with the toolbox, so you should copy these files into templates sub-directory. 
+
+----
+= Other Downloads =
+
+You will find them [https://code.google.com/p/isc-toolbox/downloads/list here]. 

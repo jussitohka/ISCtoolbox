@@ -1,0 +1,116 @@
+#summary Known Matlab errors related to the ISC-toolbox
+#labels Featured,Phase-Support,Phase-Deploy
+
+= General Install and Environment =
+
+*Description:* There is known a bug in between different versions of Matlab with the memmapping mechanism. A detailed guide for fixing the bug can be found from MemmappingFix page.  
+
+----
+*Description:* When toolbox is loading nii files an error with following statement occures: 
+{{{
+Error using det 
+LAPACK loading error:
+dlopen: cannot load any more object with static TLS
+}}}
+*Cause / Solution:* This happens in certain 64 bit Linux environments when Matlab does not load all necessary libraries at startup. The problem can be fixed by adding the following line in the startup.m script:
+{{{
+ones(10)*rand(10);
+}}}
+This line forces Matlab to load the needed libraries. The common location for startup.m is in the matlab folder under the home folder of every user. 
+More information about startup.m is found from [http://www.mathworks.se/help/matlab/ref/startup.html here]
+----
+= Start up GUI =
+
+*Description:*  With Matlab 2014b there is a compatibility issue with isc-toolbox (version 2.1 backwards) Startup GUI:
+The text box where user should add the paths to source data is missing as well as the box to select the session.
+
+*Cause / Solution:* The problem is caused by the new way how Matlab draws GUIs and figures in 2014b. The bug is fixed in isc-toolbox svn and user can fix it by replacing the ISCanalysis.fig file with the new one from isc-analysis svn:
+
+https://isc-toolbox.googlecode.com/svn/trunk/ISCanalysis/ISCanalysis.fig
+
+The fix is included in the future releases.
+----
+
+= Visualization GUI =
+
+Known bugs and errors:
+----
+
+*Description:*  With Matlab 2014b there is a compatibility issue with isc-toolbox (version 2.1 backwards) Visualization GUI:
+The whole GUI crashes and only empty figure window opens when the GUI is started.
+
+Most of the errors are from UIControl class: 
+{{{
+Error using get
+There is no Behavior property on the UIControl class.
+}}}
+
+*Cause / Solution:* The problem is caused by the new way how Matlab draws GUIs and figures in 2014b. An initial fix is available in isc-toolbox svn and user can apply the fix by replacing two files, fMRI_GUI_export.m and getParams.m (from visGUI folder) with new ones from isc-analysis svn: 
+
+https://isc-toolbox.googlecode.com/svn/trunk/visGUI/fMRI_GUI_export.m and <br>
+https://isc-toolbox.googlecode.com/svn/trunk/visGUI/getParams.m 
+
+These fixes allow the basic usage of Visualization GUI in 2014b, but there exists probably more problems with the new visualization system of 2014b which will be fixed in the future. 
+
+The fix is included in the future releases.
+
+----
+*Description:* When deselect the "Fill Regions" option, following error appears:
+
+{{{
+Undefined variable "coder" or class "coder.internal.prefer_const".
+Error in images.internal.algbwmorph (line 16)
+coder.internal.prefer_const(opStr);
+Error in bwmorph (line 132)
+    [bw, lut] = images.internal.algbwmorph(bwin,op,n);
+Error in bwperim (line 66)
+    p = bwmorph(b,'perim4');
+Error in loadAtlasData (line 43)
+            B1 = bwperim( dataCort(:,:,m) ==
+            handles.regionLabelsOrig(atlasInds(k)) );
+Error in fMRI_GUI_export>checkboxAtlasRegionType_Callback (line 699)
+handles = loadAtlasData(handles);
+Error in fMRI_GUI_export>gui_mainfcn (line 5120)
+        feval(varargin{:});
+Error in fMRI_GUI_export (line 44)
+    gui_mainfcn(gui_State, varargin{:}); 
+Error using waitfor
+Error while evaluating uicontrol Callback
+}}}
+
+*Cause / Solution:* The Path of matlab is not correct, check the path (and check that you have Image Processing toolbox correctly installed)
+
+----
+
+*Description:*  When selecting Plot Image Series following error appears:
+
+{{{
+Error using Settings
+Undefined function or variable 'matlab.internal.getSettingsRoot'.
+Error in iptgetpref (line 22)
+s = Settings;
+Error in imshow (line 234)
+    initial_mag = iptgetpref('ImshowInitialMagnification');
+Error in montageModif (line 75)
+    hh = imshow(b,cm);
+Error in fMRI_GUI_export>pushbuttonNewFigure_Callback (line 1316)
+        montageModif(handles.CurrentData{mm},handles.colMap,...
+Error in fMRI_GUI_export>gui_mainfcn (line 5120)
+        feval(varargin{:});
+Error in fMRI_GUI_export (line 44)
+    gui_mainfcn(gui_State, varargin{:}); 
+Error using waitfor
+Error while evaluating uicontrol Callback
+}}}
+
+*Cause / Solution:* The Path of Matlab is corrupted, check the path (and check that you have Image Processing toolbox correctly installed)
+
+To fix the issue, you can run:
+{{{
+restoredefaultpath;
+rehash toolboxcache;
+}}}
+And if everything works after that, you can save the Path:
+{{{
+savepath;
+}}}

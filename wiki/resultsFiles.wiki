@@ -1,0 +1,31 @@
+= The files in the results subdirectory =
+ISCSessionComp1Band0ZSumstat.nii  :  The standard test statistics values (same model for all voxels (aka whole brain model aka global null) for group comparison                                          
+ISCcorrmapBand0Session1.nii       : ISC maps, session 1                                         
+ISCcorrmapBand0Session2.nii       : ISC maps, session 2                                          
+Session1Band0ThresholdsWin0.csv   : Thresholds for session 1 ISC maps   ( use these to threshold  ISCcorrmapBand0Session1.nii )                               
+Session2Band0ThresholdsWin0.csv   : Thresholds for session 2 ISC maps (use these to threshold  ISCcorrmapBand0Session2.nii                                        
+SessionComparison1Band0ThresholdsWin0_Group_SW_MCConly_0_25000.csv  : Group comparison thresholds, use these to threshold group 
+                                                                      comparison maps. There are several thresholds which apply 
+                                                                      to different files as explained below:
+																	  
+= The rows in the SessionComparison1Band0Thresholds =
+
+This is just for group comparison. The session comparison has different rows:
+
+SC1_Threshold (voxel FWER) : FWER corrected thresholds to threshold ISCSessionComp1Band0ZSumstat.nii 
+                             (in results dir) or band0ZsumStat1.mat (in PFsession dir)
+SC1 p (voxel FDRid))       : FDR (Storey) corrected p-value thresholds to whole brain model, 
+                             apply to pvalmaps3D1Band0.nii  or band0pvalmaps3D1.mat (both in PFsession dir)
+SC1_Threshold (voxel FDRid)): FDR (Storey) corrected test statistic thresholds to whole brain model, 
+                              apply to ISCSessionComp1Band0ZSumstat.nii (in results dir) or band0ZsumStat1.mat (in PFsession dir)
+							  
+SC1_Threshold (voxel uncorrected))	: Uncorrected test statistic thresholds for the whole brain model						  
+										apply to ISCSessionComp1Band0ZSumstat.nii (in results dir) or band0ZsumStat1.mat (in PFsession dir)
+SC1 nonparametric p (voxel FDRid)):  FDR (Storey) corrected p-value thresholds to voxel-wise model (aka voxel null):
+                                     apply to band0pvalmaps3Dindvox1.mat or pvalmapsindvox3D1Band0.nii (in PFsession dir)
+SC1nonpZ_Threshold (voxel FDRid)):   FDR (Storey) corrected test statistic thresholds, voxel-wise model,
+                                     apply to z_nonparametric1Band0.nii or band0Z_nonparametric1.mat (in PFsession dir)
+SC1nonpZ_Threshold (voxel uncorrected)): Uncorrected test statistic thresholds 	to voxel-wise model (aka voxel null):
+                                   		 apply to z_nonparametric1Band0.nii or band0Z_nonparametric1.mat  (in PFsession dir)
+
+										 
